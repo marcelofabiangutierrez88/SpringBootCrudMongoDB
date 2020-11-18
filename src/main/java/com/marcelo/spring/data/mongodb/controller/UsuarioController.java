@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,16 +30,28 @@ import com.marcelo.spring.data.mongodb.repository.UsuarioRepository;
 @RequestMapping("/api")
 public class UsuarioController {
 	
+	private static final Logger logger = Logger.getLogger(UsuarioController.class) ;
+	private BCryptPasswordEncoder bCryptPasswordEncoder; 
+	
 	@Autowired
 	UsuarioRepository usuarioRepository;
+	
+	public UsuarioController(BCryptPasswordEncoder bCryptPasswordEncoder) {
+		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+	}
+	
 	
 	@GetMapping("/usuarios")
 	public ResponseEntity<List<Usuario>> getAllUsuarios(@RequestParam(required = false) String nombre){
 		try {
 			List<Usuario> usuarios = new ArrayList<Usuario>();
+			if(usuarioRepository.findAll().isEmpty()) {
+				return ResponseEntity.status(HttpStatus.OK).body(usuarios);
+			}
 			usuarioRepository.findAll().forEach(usuarios::add);
 			return new ResponseEntity<>(usuarios, HttpStatus.OK);			
 		} catch (Exception e) {
+			logger.error("Error en get usuarios: "+ e.getMessage());
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -49,23 +64,24 @@ public class UsuarioController {
 			Usuario _usuario = usuarioData.get();
 			return new ResponseEntity<>(_usuario, HttpStatus.OK);
 		} else {
-			ErrorResponse error = new ErrorResponse();
-			error.setCodigo("1");
-			error.setDescripcion("a");
+			logger.error("Error en get usuarios por id: ");
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 		}
 	}
 	
-	@PostMapping("/usuarios")
-	public ResponseEntity<Usuario> createUsuario(@RequestBody Usuario usuario){
+	@PostMapping(value="/usuarios", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> createUsuario(@RequestBody Usuario usuario){
 		if(usuario==null) {
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 		}
 		try {
-			Usuario _usuario = usuarioRepository.save(new Usuario(usuario.getNombre(),usuario.getApellido(), usuario.getCuit(), usuario.getDni(),usuario.getEmail()));
+			Usuario _usuario = usuarioRepository.save(new Usuario(usuario.getNombre(),usuario.getApellido(), usuario.getCuit(), 
+					usuario.getDni(),usuario.getEmail(), bCryptPasswordEncoder.encode(usuario.getPassword())));
 			return new ResponseEntity<>(_usuario, HttpStatus.CREATED);			
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+			logger.error("Error en post usuarios: "+ e.getMessage());
+			ErrorResponse error = new ErrorResponse("Error", e.getMessage());
+			return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
 		}
 	}
 	
@@ -82,6 +98,7 @@ public class UsuarioController {
 			_usuario.setEmail(usuario.getEmail());
 			return new ResponseEntity<>(usuarioRepository.save(_usuario), HttpStatus.OK);
 		}else {
+			logger.error("Error en put usuarios: ");
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
@@ -92,6 +109,7 @@ public class UsuarioController {
 			usuarioRepository.deleteById(id);
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		} catch (Exception e) {
+			logger.error("Error en get usuarios: "+ e.getMessage());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -102,6 +120,7 @@ public class UsuarioController {
 			usuarioRepository.deleteAll();
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		} catch (Exception e) {
+			logger.error("Error en get usuarios: "+ e.getMessage());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}

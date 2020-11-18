@@ -3,18 +3,29 @@ package com.marcelo.spring.data.mongodb.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collation = "cuentas")
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+/**
+ * @author marcelo
+ *
+ */
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Document(collection = "cuentas")
 public class Cuenta {
 	@Id
 	private String id;
 	private String nroCuenta;
 	private Usuario usuario;
+	private String cbu;
+	private String alias;
 
 	public Cuenta() {}
 	
-	public Cuenta(Usuario usuario, String nroCuenta) {
+	public Cuenta(Usuario usuario, String nroCuenta, String cbu, String alias) {
 		this.usuario = usuario;
 		this.nroCuenta = nroCuenta;
+		this.cbu = cbu;
+		this.alias = alias;
 	}
 
 	public String getId() {
@@ -37,7 +48,29 @@ public class Cuenta {
 		return nroCuenta;
 	}
 
-	public void setNroCuenta(String nroCuenta) {
+	public String setNroCuenta(String nroCuenta) {
 		this.nroCuenta = nroCuenta;
+		return nroCuenta;
 	}
+
+	public String getCbu() {
+		return cbu;
+	}
+
+	public String setCbu(String cbu) {
+		this.cbu = cbu;
+		return cbu;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public String setAlias(String alias) {
+		this.alias = alias;
+		return alias;
+	}
+	
+	
+
 }

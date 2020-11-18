@@ -2,7 +2,12 @@ package com.marcelo.spring.data.mongodb.model;
 
 public class ErrorResponse {
 	private String codigo;
-	private String Descripcion;
+	private String descripcion;
+	
+	public ErrorResponse(String codigo, String descripcion) {
+		this.codigo = codigo;
+		this.descripcion = descripcion;
+	}
 	
 	public String getCodigo() {
 		return codigo;
@@ -11,9 +16,9 @@ public class ErrorResponse {
 		this.codigo = codigo;
 	}
 	public String getDescripcion() {
-		return Descripcion;
+		return descripcion;
 	}
 	public void setDescripcion(String descripcion) {
-		Descripcion = descripcion;
+		this.descripcion = descripcion;
 	}
 }

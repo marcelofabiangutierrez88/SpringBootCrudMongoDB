@@ -4,6 +4,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "usuarios")
 public class Usuario {
 	@Id
@@ -12,17 +15,21 @@ public class Usuario {
 	private String apellido;
 	@Indexed(unique=true)
 	private String dni;
+	@Indexed(unique=true)
 	private String cuit;
+	@Indexed(unique=true)
 	private String email;
+	private String password;
 	
 	public Usuario() {}
 	
-	public Usuario(String nombre, String apellido, String dni, String cuit, String email) {
+	public Usuario(String nombre, String apellido, String dni, String cuit, String email, String password) {
 		this.apellido = apellido;
 		this.nombre = nombre;
 		this.dni = dni;
 		this.cuit = cuit;
 		this.email = email;
+		this.password = password;
 	}
 
 	public String getId() {
@@ -71,6 +78,14 @@ public class Usuario {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+	
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	@Override
