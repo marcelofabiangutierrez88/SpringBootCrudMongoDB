@@ -25,9 +25,14 @@ import com.marcelo.spring.data.mongodb.model.ErrorResponse;
 import com.marcelo.spring.data.mongodb.model.Usuario;
 import com.marcelo.spring.data.mongodb.repository.UsuarioRepository;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @CrossOrigin(origins = "http://localhost:8081")
 @RestController
-@RequestMapping("/api")
+@Api(tags = "API fintech Make Bank Usuarios", value = "Integracion de conocimientos con SpringBoot")
 public class UsuarioController {
 	
 	private static final Logger logger = Logger.getLogger(UsuarioController.class) ;
@@ -42,6 +47,10 @@ public class UsuarioController {
 	
 	
 	@GetMapping("/usuarios")
+	@ApiOperation("Obtener todos los usuarios")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Se obtienen todos los usuarios registrados", response = ResponseEntity.class)
+	})
 	public ResponseEntity<List<Usuario>> getAllUsuarios(@RequestParam(required = false) String nombre){
 		try {
 			List<Usuario> usuarios = new ArrayList<Usuario>();
@@ -57,6 +66,10 @@ public class UsuarioController {
 	}
 	
 	@GetMapping("/usuarios/{id}")
+	@ApiOperation("Obtener usuario por id")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Se obtiene el usuario por su id", response = ResponseEntity.class)
+	})
 	public ResponseEntity<Usuario> getOneUsuario(@PathVariable("id") String id){
 		Optional<Usuario> usuarioData = usuarioRepository.findById(id);
 		
@@ -70,6 +83,10 @@ public class UsuarioController {
 	}
 	
 	@PostMapping(value="/usuarios", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiOperation("crear un usuario")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Crear un usuario", response = ResponseEntity.class)
+	})
 	public ResponseEntity<?> createUsuario(@RequestBody Usuario usuario){
 		if(usuario==null) {
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
@@ -86,6 +103,10 @@ public class UsuarioController {
 	}
 	
 	@PutMapping("/usuarios/{id}")
+	@ApiOperation("update usuario filtrandolo por id")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Se obtienen el usuario actualizado", response = ResponseEntity.class)
+	})
 	public ResponseEntity<Usuario>UpdateUsuario(@PathVariable("id") String id, @RequestBody Usuario usuario){
 		Optional<Usuario> usuarioData = usuarioRepository.findById(id);
 		
@@ -104,6 +125,10 @@ public class UsuarioController {
 	}
 	
 	@DeleteMapping("/usuarios/{id}")
+	@ApiOperation("elimina un usuario por id")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Se elimina el usuario", response = ResponseEntity.class)
+	})
 	public ResponseEntity<HttpStatus> deleteUsuario(@PathVariable("id") String id){
 		try {
 			usuarioRepository.deleteById(id);
@@ -115,6 +140,10 @@ public class UsuarioController {
 	}
 	
 	@DeleteMapping("/usuarios")
+	@ApiOperation("Eliminar todos los usuarios")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Se eliminan todos los usuarios registrados", response = ResponseEntity.class)
+	})
 	public ResponseEntity<HttpStatus> deleteAllUsuarios (){
 		try {
 			usuarioRepository.deleteAll();

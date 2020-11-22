@@ -25,9 +25,14 @@ import com.marcelo.spring.data.mongodb.model.Cuenta;
 import com.marcelo.spring.data.mongodb.model.ErrorResponse;
 import com.marcelo.spring.data.mongodb.repository.CuentaRepository;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @CrossOrigin(origins = "http://localhost:8081")
 @RestController
-@RequestMapping("/api")
+@Api(tags = "API fintech Make Bank Cuentas", value = "Integracion de conocimientos con SpringBoot")
 public class CuentaController {
 	
 	private static final Logger logger = Logger.getLogger(UsuarioController.class) ;
@@ -41,6 +46,10 @@ public class CuentaController {
 	}
 	
 	@GetMapping(value = "/cuentas",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiOperation("Obtener todas las cuentas")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Se obtienen todas las cuentas registradas", response = ResponseEntity.class)
+	})
 	public ResponseEntity<?> getAllCuentas(@RequestBody(required = false)String nroCuenta) throws Exception{
 		try {
 			List<Cuenta> cuentas = new ArrayList<Cuenta>();
@@ -54,6 +63,10 @@ public class CuentaController {
 	}
 	
 	@GetMapping(value = "/cuentas/{id}",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiOperation("Obtener una cuenta en particular por id")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "se obtiene una cuenta en particular por id", response = ResponseEntity.class)
+	})
 	public ResponseEntity<?> getOneCuenta (@PathVariable("id") String id){
 		Optional<Cuenta> cuentaData = cuentaRepository.findById(id);
 		
@@ -68,6 +81,10 @@ public class CuentaController {
 	}
 	
 	@PostMapping(value = "/cuentas",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiOperation("Crear una cuenta")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Se crea una cuenta", response = ResponseEntity.class)
+	})
 	public ResponseEntity<?> createCuenta(@RequestBody Cuenta cuenta) throws Exception{
 		try {
 			Cuenta _cuenta = cuentaRepository.save(new Cuenta(cuenta.getUsuario(),
@@ -84,6 +101,10 @@ public class CuentaController {
 	}
 	
 	@DeleteMapping(value = "/cuentas/{id}")
+	@ApiOperation("Elimina una cuenta")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Se elimina una cuenta particular por id", response = ResponseEntity.class)
+	})
 	public ResponseEntity<?> deleteCuentaById (@PathVariable("id") String id){
 		Optional<Cuenta> cuentaData = cuentaRepository.findById(id);
 		if(cuentaData.isPresent()) {
@@ -97,6 +118,10 @@ public class CuentaController {
 	}
 	
 	@DeleteMapping(value = "/cuentas",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiOperation("Eliminar todas las cuentas")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Se eliminan todas las cuentas registradas", response = ResponseEntity.class)
+	})
 	public ResponseEntity<?> deleteAllCuentas() throws Exception{
 		try {
 			cuentaRepository.deleteAll();
