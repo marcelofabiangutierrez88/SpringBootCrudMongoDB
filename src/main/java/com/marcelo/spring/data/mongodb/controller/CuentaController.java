@@ -48,73 +48,56 @@ public class CuentaController {
 	@GetMapping(value = "/cuentas",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiOperation("Obtener todas las cuentas")
 	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Se obtienen todas las cuentas registradas", response = ResponseEntity.class)
-	})
-	public ResponseEntity<?> getAllCuentas(@RequestBody(required = false)String nroCuenta) throws Exception{
-		try {
+			@ApiResponse(code = 200, message = "Se obtienen todas las cuentas registradas", response = ResponseEntity.class)})
+	public ResponseEntity<?> getAllCuentas(@RequestBody(required = false)String nroCuenta){
 			List<Cuenta> cuentas = new ArrayList<Cuenta>();
 			cuentaRepository.findAll().forEach(cuentas::add);
 			return new ResponseEntity<>(cuentas, HttpStatus.OK);
-		} catch (Exception e) {
-			logger.error("Error en get cuentas: "+ e.getMessage());
-			ErrorResponse error = new ErrorResponse("Error",e.getMessage());
-			return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
 	}
 	
-	@GetMapping(value = "/cuentas/{id}",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/cuentas/{id}")
 	@ApiOperation("Obtener una cuenta en particular por id")
 	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "se obtiene una cuenta en particular por id", response = ResponseEntity.class)
-	})
+			@ApiResponse(code = 200, message = "se obtiene una cuenta en particular por id", response = ResponseEntity.class)})
 	public ResponseEntity<?> getOneCuenta (@PathVariable("id") String id){
 		Optional<Cuenta> cuentaData = cuentaRepository.findById(id);
-		
-		if(cuentaData.isPresent()) {
-			Cuenta _cuenta = cuentaData.get();
-			return new ResponseEntity<>(_cuenta, HttpStatus.OK);
-		} else {
-			ErrorResponse error = new ErrorResponse("400", "Consulta mal realizada");
-			logger.error("Error en get cuentas por id: "+ error);
-			return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-		}
+			if(cuentaData.isPresent()) {
+				Cuenta _cuenta = cuentaData.get();
+				return ResponseEntity.status(HttpStatus.OK).body(_cuenta);
+			} else {
+				ErrorResponse error = new ErrorResponse("400", "El id enviado: " + id + " no existe en la base de datos");
+				logger.error("Error en get cuentas por id: "+ error);
+				return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+			}
 	}
 	
 	@PostMapping(value = "/cuentas",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiOperation("Crear una cuenta")
 	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Se crea una cuenta", response = ResponseEntity.class)
-	})
-	public ResponseEntity<?> createCuenta(@RequestBody Cuenta cuenta) throws Exception{
-		try {
+			@ApiResponse(code = 200, message = "Se crea una cuenta", response = ResponseEntity.class)})
+	public ResponseEntity<?> createCuenta(@RequestBody Cuenta cuenta){
 			Cuenta _cuenta = cuentaRepository.save(new Cuenta(cuenta.getUsuario(),
 					cuenta.setNroCuenta(buildNroCuenta()),
 					cuenta.setCbu(buildCbu(buildNroCuenta())),
 					cuenta.setAlias(buildAlias(cuenta.getUsuario().getEmail())))
 					);
 			return new ResponseEntity<>(_cuenta, HttpStatus.CREATED);
-		} catch (Exception e) {
-			logger.error("Error en post cuenta: "+ e.getMessage());
-			ErrorResponse error = new ErrorResponse("400","No se envio un request valido");
-			return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-		}
 	}
 	
 	@DeleteMapping(value = "/cuentas/{id}")
 	@ApiOperation("Elimina una cuenta")
 	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Se elimina una cuenta particular por id", response = ResponseEntity.class)
-	})
+			@ApiResponse(code = 200, message = "Se elimina una cuenta particular por id", response = ResponseEntity.class)})
 	public ResponseEntity<?> deleteCuentaById (@PathVariable("id") String id){
 		Optional<Cuenta> cuentaData = cuentaRepository.findById(id);
-		if(cuentaData.isPresent()) {
-			cuentaRepository.deleteById(id);
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).body("OK");
-		} else {
-			ErrorResponse error = new ErrorResponse("400", "El id enviado: " + id + " no existe en la base de datos");
-			logger.error("Error en delete cuenta por id: "+ error);
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-		}
+			if(cuentaData.isPresent()) {
+				cuentaRepository.deleteById(id);
+				return ResponseEntity.status(HttpStatus.NO_CONTENT).body("OK");
+			} else {
+				ErrorResponse error = new ErrorResponse("400", "El id enviado: " + id + " no existe en la base de datos");
+				logger.error("Error en delete cuenta por id: "+ error);
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+			}			
 	}
 	
 	@DeleteMapping(value = "/cuentas",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -122,15 +105,9 @@ public class CuentaController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Se eliminan todas las cuentas registradas", response = ResponseEntity.class)
 	})
-	public ResponseEntity<?> deleteAllCuentas() throws Exception{
-		try {
+	public ResponseEntity<?> deleteAllCuentas(){
 			cuentaRepository.deleteAll();
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body("OK");
-		} catch (Exception e) {
-			logger.error("Error en delete cuentas: "+ e.getMessage());
-			ErrorResponse error = new ErrorResponse(e.getMessage(), e.getLocalizedMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-		}
 	}
 	
 	private String buildCbu (String param) throws IndexOutOfBoundsException {
@@ -152,5 +129,4 @@ public class CuentaController {
 		String splitToUpper = split.replace(split, split.toUpperCase());
 		return splitToUpper;
 	}
-	
 }

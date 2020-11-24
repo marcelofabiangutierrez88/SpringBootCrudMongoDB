@@ -45,24 +45,18 @@ public class UsuarioController {
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 	}
 	
-	
 	@GetMapping("/usuarios")
 	@ApiOperation("Obtener todos los usuarios")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Se obtienen todos los usuarios registrados", response = ResponseEntity.class)
 	})
 	public ResponseEntity<List<Usuario>> getAllUsuarios(@RequestParam(required = false) String nombre){
-		try {
 			List<Usuario> usuarios = new ArrayList<Usuario>();
 			if(usuarioRepository.findAll().isEmpty()) {
 				return ResponseEntity.status(HttpStatus.OK).body(usuarios);
 			}
 			usuarioRepository.findAll().forEach(usuarios::add);
-			return new ResponseEntity<>(usuarios, HttpStatus.OK);			
-		} catch (Exception e) {
-			logger.error("Error en get usuarios: "+ e.getMessage());
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+			return new ResponseEntity<>(usuarios, HttpStatus.OK);
 	}
 	
 	@GetMapping("/usuarios/{id}")
@@ -91,15 +85,9 @@ public class UsuarioController {
 		if(usuario==null) {
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 		}
-		try {
 			Usuario _usuario = usuarioRepository.save(new Usuario(usuario.getNombre(),usuario.getApellido(), usuario.getCuit(), 
 					usuario.getDni(),usuario.getEmail(), bCryptPasswordEncoder.encode(usuario.getPassword())));
-			return new ResponseEntity<>(_usuario, HttpStatus.CREATED);			
-		} catch (Exception e) {
-			logger.error("Error en post usuarios: "+ e.getMessage());
-			ErrorResponse error = new ErrorResponse("Error", e.getMessage());
-			return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-		}
+			return new ResponseEntity<>(_usuario, HttpStatus.CREATED);
 	}
 	
 	@PutMapping("/usuarios/{id}")
@@ -130,13 +118,8 @@ public class UsuarioController {
 			@ApiResponse(code = 200, message = "Se elimina el usuario", response = ResponseEntity.class)
 	})
 	public ResponseEntity<HttpStatus> deleteUsuario(@PathVariable("id") String id){
-		try {
 			usuarioRepository.deleteById(id);
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		} catch (Exception e) {
-			logger.error("Error en get usuarios: "+ e.getMessage());
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
 	}
 	
 	@DeleteMapping("/usuarios")
@@ -145,13 +128,7 @@ public class UsuarioController {
 			@ApiResponse(code = 200, message = "Se eliminan todos los usuarios registrados", response = ResponseEntity.class)
 	})
 	public ResponseEntity<HttpStatus> deleteAllUsuarios (){
-		try {
 			usuarioRepository.deleteAll();
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		} catch (Exception e) {
-			logger.error("Error en get usuarios: "+ e.getMessage());
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
 	}
-
 }
